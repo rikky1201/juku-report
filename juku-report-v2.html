@@ -1,0 +1,815 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>授業報告書ジェネレーター</title>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@300;400;500;700&family=Shippori+Mincho:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0f0f13;
+  --surface: #16161d;
+  --surface2: #1e1e28;
+  --border: #2a2a38;
+  --border2: #353548;
+  --text: #e8e8f0;
+  --muted: #6b6b88;
+  --mid: #9a9ab8;
+  --jhs: #4fc3a1;
+  --jhs-dim: rgba(79,195,161,0.12);
+  --jhs-border: rgba(79,195,161,0.3);
+  --hs: #e8925a;
+  --hs-dim: rgba(232,146,90,0.12);
+  --hs-border: rgba(232,146,90,0.3);
+  --active: #7c6af7;
+  --active-dim: rgba(124,106,247,0.15);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Zen Kaku Gothic New', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  line-height: 1.7;
+}
+
+/* HEADER */
+header {
+  padding: 18px 28px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  background: rgba(15,15,19,0.95);
+  backdrop-filter: blur(12px);
+  z-index: 100;
+}
+
+.logo {
+  font-family: 'Shippori Mincho', serif;
+  font-size: 1rem;
+  letter-spacing: 0.12em;
+  color: var(--text);
+}
+
+.logo span { color: var(--active); }
+
+.date-badge {
+  font-size: 0.72rem;
+  color: var(--muted);
+  letter-spacing: 0.08em;
+}
+
+/* MODE TOGGLE */
+.mode-toggle {
+  display: flex;
+  gap: 0;
+  border: 1px solid var(--border2);
+  border-radius: 6px;
+  overflow: hidden;
+  margin: 28px auto;
+  max-width: 340px;
+}
+
+.mode-btn {
+  flex: 1;
+  padding: 12px 0;
+  border: none;
+  background: var(--surface);
+  color: var(--muted);
+  font-family: 'Zen Kaku Gothic New', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.25s;
+  letter-spacing: 0.05em;
+  position: relative;
+}
+
+.mode-btn.jhs.active {
+  background: var(--jhs-dim);
+  color: var(--jhs);
+  border-bottom: 2px solid var(--jhs);
+}
+
+.mode-btn.hs.active {
+  background: var(--hs-dim);
+  color: var(--hs);
+  border-bottom: 2px solid var(--hs);
+}
+
+/* MAIN LAYOUT */
+.main {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 0 20px 80px;
+}
+
+/* SECTION CARD */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 24px 28px;
+  margin-bottom: 16px;
+  animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.card.jhs-card { border-color: var(--jhs-border); }
+.card.hs-card { border-color: var(--hs-border); }
+
+.card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 18px;
+}
+
+.card-label {
+  font-size: 0.7rem;
+  letter-spacing: 0.15em;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.card-label.jhs { color: var(--jhs); }
+.card-label.hs { color: var(--hs); }
+
+/* STUDENT BLOCK */
+.student-block {
+  background: var(--surface2);
+  border: 1px solid var(--border2);
+  border-radius: 6px;
+  padding: 18px 20px;
+  margin-bottom: 12px;
+  position: relative;
+}
+
+.student-name-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.student-num {
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  background: var(--jhs-dim);
+  border: 1px solid var(--jhs-border);
+  color: var(--jhs);
+  font-size: 0.7rem;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+
+/* FORM ELEMENTS */
+.fg {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.fg:last-child { margin-bottom: 0; }
+
+label {
+  font-size: 0.72rem;
+  color: var(--muted);
+  letter-spacing: 0.06em;
+}
+
+input[type="text"], input[type="date"], input[type="number"], select, textarea {
+  font-family: 'Zen Kaku Gothic New', sans-serif;
+  font-size: 0.875rem;
+  padding: 9px 12px;
+  border: 1px solid var(--border2);
+  border-radius: 5px;
+  background: var(--bg);
+  color: var(--text);
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  width: 100%;
+}
+
+input:focus, select:focus, textarea:focus {
+  border-color: var(--active);
+  box-shadow: 0 0 0 3px var(--active-dim);
+}
+
+textarea { resize: vertical; min-height: 80px; line-height: 1.7; }
+
+.row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.row3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+
+/* TEST ITEMS */
+.test-item {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.test-item input { width: 100%; }
+.test-item input.score { width: 70px; text-align: center; }
+
+.add-btn {
+  background: none;
+  border: 1px dashed var(--border2);
+  color: var(--muted);
+  border-radius: 4px;
+  padding: 7px 12px;
+  font-size: 0.78rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  width: 100%;
+  font-family: 'Zen Kaku Gothic New', sans-serif;
+}
+.add-btn:hover { border-color: var(--active); color: var(--active); }
+
+.remove-btn {
+  background: none;
+  border: none;
+  color: var(--muted);
+  cursor: pointer;
+  font-size: 1rem;
+  padding: 0 4px;
+  line-height: 1;
+  transition: color 0.2s;
+}
+.remove-btn:hover { color: #e05a5a; }
+
+/* GENERATE BUTTON */
+.gen-btn {
+  width: 100%;
+  padding: 15px;
+  border: none;
+  border-radius: 6px;
+  font-family: 'Zen Kaku Gothic New', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-top: 4px;
+}
+
+.gen-btn.jhs {
+  background: var(--jhs);
+  color: #0a1a16;
+}
+.gen-btn.jhs:hover { filter: brightness(1.1); transform: translateY(-1px); }
+
+.gen-btn.hs {
+  background: var(--hs);
+  color: #1a0e08;
+}
+.gen-btn.hs:hover { filter: brightness(1.1); transform: translateY(-1px); }
+.gen-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+/* RESULT */
+.result-card {
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: 8px;
+  padding: 24px 28px;
+  margin-top: 20px;
+  display: none;
+  animation: slideIn 0.4s ease;
+}
+
+.result-card.visible { display: block; }
+
+.result-label {
+  font-size: 0.7rem;
+  letter-spacing: 0.15em;
+  color: var(--muted);
+  text-transform: uppercase;
+  margin-bottom: 14px;
+}
+
+.report-box {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  padding: 18px 20px;
+  font-size: 0.875rem;
+  line-height: 1.9;
+  white-space: pre-wrap;
+  min-height: 100px;
+  color: var(--text);
+  margin-bottom: 14px;
+}
+
+.action-row {
+  display: flex;
+  gap: 10px;
+}
+
+.act-btn {
+  padding: 9px 20px;
+  border: none;
+  border-radius: 5px;
+  font-family: 'Zen Kaku Gothic New', sans-serif;
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  letter-spacing: 0.04em;
+}
+
+.act-btn.copy { background: var(--active); color: white; }
+.act-btn.copy:hover { filter: brightness(1.15); }
+
+/* LOADING */
+.loading {
+  display: none;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 0;
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+.loading.show { display: flex; }
+
+.dots span {
+  display: inline-block;
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: var(--active);
+  margin: 0 2px;
+  animation: pulse 1.2s infinite;
+}
+.dots span:nth-child(2) { animation-delay: 0.2s; }
+.dots span:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes pulse {
+  0%, 80%, 100% { opacity: 0.3; transform: scale(0.8); }
+  40% { opacity: 1; transform: scale(1.1); }
+}
+
+/* TOAST */
+.toast {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%) translateY(12px);
+  background: var(--surface2);
+  border: 1px solid var(--border2);
+  color: var(--text);
+  padding: 10px 22px;
+  border-radius: 20px;
+  font-size: 0.82rem;
+  opacity: 0;
+  transition: all 0.3s;
+  pointer-events: none;
+  z-index: 999;
+  white-space: nowrap;
+}
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+/* DIVIDER */
+.divider {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 16px 0;
+}
+
+@media (max-width: 580px) {
+  .row2, .row3 { grid-template-columns: 1fr; }
+  .card { padding: 18px 16px; }
+  header { padding: 14px 18px; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">授業<span>報告</span>ジェネレーター</div>
+  <div class="date-badge" id="todayDate"></div>
+</header>
+
+<div class="main">
+
+  <!-- MODE TOGGLE -->
+  <div class="mode-toggle">
+    <button class="mode-btn jhs active" onclick="setMode('jhs')">🏫 中学生</button>
+    <button class="mode-btn hs" onclick="setMode('hs')">📚 高校生</button>
+  </div>
+
+  <!-- ===== 中学生モード ===== -->
+  <div id="jhsMode">
+
+    <div class="card jhs-card">
+      <div class="card-header">
+        <span class="card-label jhs">基本情報</span>
+      </div>
+      <div class="row2">
+        <div class="fg">
+          <label>授業日</label>
+          <input type="date" id="jhs-date">
+        </div>
+        <div class="fg">
+          <label>授業時間帯</label>
+          <input type="text" id="jhs-time" placeholder="例：19:00〜21:00">
+        </div>
+      </div>
+    </div>
+
+    <!-- 生徒ブロック（動的） -->
+    <div id="jhs-students"></div>
+
+    <button class="add-btn" onclick="addStudent()" style="margin-bottom:16px;">＋ 生徒を追加する</button>
+
+    <button class="gen-btn jhs" id="jhs-gen-btn" onclick="generateJHS()">報告文を生成する</button>
+
+    <!-- 結果 -->
+    <div class="result-card" id="jhs-result">
+      <div class="result-label">生成された報告文（講師共有用）</div>
+      <div class="loading" id="jhs-loading">
+        <div class="dots"><span></span><span></span><span></span></div>
+        生成中です…
+      </div>
+      <div class="report-box" id="jhs-report"></div>
+      <div class="action-row">
+        <button class="act-btn copy" onclick="copyResult('jhs')">📋 コピー</button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ===== 高校生モード ===== -->
+  <div id="hsMode" style="display:none;">
+
+    <div class="card hs-card">
+      <div class="card-header">
+        <span class="card-label hs">基本情報</span>
+      </div>
+      <div class="row2">
+        <div class="fg">
+          <label>生徒名</label>
+          <input type="text" id="hs-name" placeholder="例：山田 花子">
+        </div>
+        <div class="fg">
+          <label>授業日</label>
+          <input type="date" id="hs-date">
+        </div>
+      </div>
+    </div>
+
+    <!-- 小テスト -->
+    <div class="card hs-card">
+      <div class="card-header">
+        <span class="card-label hs">小テスト結果</span>
+      </div>
+      <div id="hs-tests"></div>
+      <button class="add-btn" onclick="addTest()">＋ 科目を追加</button>
+      <hr class="divider">
+      <div class="fg">
+        <label>小テスト全体の所見（箇条書きOK）</label>
+        <textarea id="hs-test-comment" placeholder="例：&#10;・全体的に7割程度&#10;・英単語はつづりミスが半数&#10;・数学は基礎問題でのケアレスミスが目立つ"></textarea>
+      </div>
+    </div>
+
+    <!-- 振り返り -->
+    <div class="card hs-card">
+      <div class="card-header">
+        <span class="card-label hs">今週の振り返り</span>
+      </div>
+      <div class="row3">
+        <div class="fg">
+          <label>今週の目標学習時間（h）</label>
+          <input type="number" id="hs-goal-hours" placeholder="例：25">
+        </div>
+        <div class="fg">
+          <label>実際の学習時間（h）</label>
+          <input type="number" id="hs-actual-hours" placeholder="例：23">
+        </div>
+        <div class="fg">
+          <label>達成率（自動計算）</label>
+          <input type="text" id="hs-achieve-rate" readonly placeholder="—" style="color:var(--mid);">
+        </div>
+      </div>
+      <div class="fg">
+        <label>振り返りメモ（箇条書きOK）</label>
+        <textarea id="hs-review-memo" placeholder="例：&#10;・計画通りいかなかった日の翌日は挽回できていた&#10;・早起きが根本的な課題としてまだ残っている"></textarea>
+      </div>
+    </div>
+
+    <!-- 来週の計画 -->
+    <div class="card hs-card">
+      <div class="card-header">
+        <span class="card-label hs">来週の計画・対策</span>
+      </div>
+      <div class="fg">
+        <label>来週の目標学習時間（h）</label>
+        <input type="number" id="hs-next-hours" placeholder="例：25">
+      </div>
+      <div class="fg">
+        <label>来週の対策・目標（箇条書きOK）</label>
+        <textarea id="hs-next-plan" placeholder="例：&#10;・アラームをベッドから遠くに置く&#10;・少し寝坊しても破綻しない計画を立てる&#10;・英単語はミスを減らすことを優先する"></textarea>
+      </div>
+    </div>
+
+    <button class="gen-btn hs" id="hs-gen-btn" onclick="generateHS()">報告文を生成する</button>
+
+    <!-- 結果 -->
+    <div class="result-card" id="hs-result">
+      <div class="result-label">生成された報告文（保護者向け）</div>
+      <div class="loading" id="hs-loading">
+        <div class="dots"><span></span><span></span><span></span></div>
+        生成中です…
+      </div>
+      <div class="report-box" id="hs-report"></div>
+      <div class="action-row">
+        <button class="act-btn copy" onclick="copyResult('hs')">📋 コピー</button>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// 初期化
+const today = new Date();
+document.getElementById('todayDate').textContent = today.toLocaleDateString('ja-JP', {year:'numeric',month:'long',day:'numeric',weekday:'short'});
+const todayStr = today.toISOString().split('T')[0];
+document.getElementById('jhs-date').value = todayStr;
+document.getElementById('hs-date').value = todayStr;
+
+// 学習時間自動計算
+['hs-goal-hours','hs-actual-hours'].forEach(id => {
+  document.getElementById(id).addEventListener('input', () => {
+    const goal = parseFloat(document.getElementById('hs-goal-hours').value);
+    const actual = parseFloat(document.getElementById('hs-actual-hours').value);
+    if (goal && actual) {
+      const rate = Math.round(actual / goal * 100);
+      document.getElementById('hs-achieve-rate').value = rate + '%';
+    } else {
+      document.getElementById('hs-achieve-rate').value = '';
+    }
+  });
+});
+
+// モード切替
+let currentMode = 'jhs';
+function setMode(mode) {
+  currentMode = mode;
+  document.getElementById('jhsMode').style.display = mode === 'jhs' ? 'block' : 'none';
+  document.getElementById('hsMode').style.display = mode === 'hs' ? 'block' : 'none';
+  document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+  document.querySelector(`.mode-btn.${mode}`).classList.add('active');
+}
+
+// ===== 中学生：生徒ブロック =====
+let studentCount = 0;
+function addStudent() {
+  studentCount++;
+  const n = studentCount;
+  const container = document.getElementById('jhs-students');
+  const div = document.createElement('div');
+  div.className = 'student-block';
+  div.id = `student-${n}`;
+  div.innerHTML = `
+    <div class="student-name-row">
+      <div class="student-num">${n}</div>
+      <input type="text" placeholder="生徒名（例：田中 太郎）" id="s${n}-name" style="flex:1;">
+      ${n > 1 ? `<button class="remove-btn" onclick="removeStudent(${n})">✕</button>` : ''}
+    </div>
+    <div class="fg">
+      <label>担当科目（複数可）</label>
+      <input type="text" id="s${n}-subject" placeholder="例：英語、数学">
+    </div>
+    <div class="fg">
+      <label>実施内容・理解度メモ（箇条書きOK）</label>
+      <textarea id="s${n}-memo" placeholder="例：&#10;・受動態プリント実施&#10;・made ofなど前置詞の使い方が分かっていない箇所が多い&#10;・宿題：残りの問題を解いてくる"></textarea>
+    </div>
+  `;
+  container.appendChild(div);
+}
+
+function removeStudent(n) {
+  document.getElementById(`student-${n}`)?.remove();
+}
+
+// ===== 高校生：テスト項目 =====
+let testCount = 0;
+function addTest() {
+  testCount++;
+  const n = testCount;
+  const container = document.getElementById('hs-tests');
+  const div = document.createElement('div');
+  div.className = 'test-item';
+  div.id = `test-${n}`;
+  div.innerHTML = `
+    <input type="text" placeholder="科目・範囲（例：英単語1601〜1680）" id="t${n}-name">
+    <input type="text" class="score" placeholder="点数" id="t${n}-score" style="width:80px;">
+    <button class="remove-btn" onclick="removeTest(${n})">✕</button>
+  `;
+  container.appendChild(div);
+}
+
+function removeTest(n) {
+  document.getElementById(`test-${n}`)?.remove();
+}
+
+// 初期追加
+addStudent();
+addStudent();
+addTest();
+addTest();
+addTest();
+
+// ===== API呼び出し =====
+async function callClaude(prompt) {
+  const res = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      model: 'claude-sonnet-4-20250514',
+      max_tokens: 1000,
+      messages: [{ role: 'user', content: prompt }]
+    })
+  });
+  const data = await res.json();
+  return data.content?.[0]?.text || 'エラーが発生しました。';
+}
+
+// ===== 中学生 生成 =====
+async function generateJHS() {
+  const date = document.getElementById('jhs-date').value;
+  const time = document.getElementById('jhs-time').value;
+
+  // 全生徒データ収集
+  const students = [];
+  document.querySelectorAll('.student-block').forEach((block, i) => {
+    const n = block.id.replace('student-','');
+    const name = document.getElementById(`s${n}-name`)?.value.trim();
+    const subject = document.getElementById(`s${n}-subject`)?.value.trim();
+    const memo = document.getElementById(`s${n}-memo`)?.value.trim();
+    if (name && memo) students.push({ name, subject, memo });
+  });
+
+  if (students.length === 0) { showToast('⚠ 生徒情報を入力してください'); return; }
+
+  const btn = document.getElementById('jhs-gen-btn');
+  btn.disabled = true;
+  document.getElementById('jhs-result').classList.add('visible');
+  document.getElementById('jhs-loading').classList.add('show');
+  document.getElementById('jhs-report').textContent = '';
+
+  const studentText = students.map(s =>
+    `【${s.name}】科目：${s.subject || '未記入'}\n${s.memo}`
+  ).join('\n\n');
+
+  const prompt = `あなたは塾講師です。以下の授業メモをもとに、他の講師への情報共有用の授業報告書を作成してください。
+
+【授業日】${date}${time ? '　' + time : ''}
+
+【各生徒のメモ】
+${studentText}
+
+【出力形式の要件】
+- 読み手は他の講師（社内共有）なので、丁寧すぎず簡潔に
+- 挨拶文は不要
+- 生徒ごとにブロックを分けて記述
+- 各生徒の構成：①実施内容 → ②理解度・気づき → ③宿題（あれば）
+- 文体：「〜しました」「〜と思います」調
+- 科目が複数ある場合は科目ごとに分けて記述
+- 以下のような実際の報告書のスタイルを参考にする：
+
+参考スタイル例：
+大濱君
+英語
+受動態プリントを行いました。イディオムや過去分詞形が分からなくて解けていない箇所が多い印象でした。間違えている箇所と残りの箇所を解いてくるのを宿題にしています。
+数学
+名人の40点以下の箇所を行い80点でした。正解できなかった問題は全く分からなかったようですが、解説を読んで理解したとのことで説明させると、きちんと説明できていたので理解していると思います。
+
+報告書のみ出力してください（説明や前置きは不要）。`;
+
+  try {
+    const result = await callClaude(prompt);
+    document.getElementById('jhs-report').textContent = result;
+  } catch(e) {
+    document.getElementById('jhs-report').textContent = '通信エラーが発生しました。';
+  }
+
+  document.getElementById('jhs-loading').classList.remove('show');
+  btn.disabled = false;
+  document.getElementById('jhs-result').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+// ===== 高校生 生成 =====
+async function generateHS() {
+  const name = document.getElementById('hs-name').value.trim();
+  const date = document.getElementById('hs-date').value;
+  const testComment = document.getElementById('hs-test-comment').value.trim();
+  const goalHours = document.getElementById('hs-goal-hours').value;
+  const actualHours = document.getElementById('hs-actual-hours').value;
+  const reviewMemo = document.getElementById('hs-review-memo').value.trim();
+  const nextHours = document.getElementById('hs-next-hours').value;
+  const nextPlan = document.getElementById('hs-next-plan').value.trim();
+
+  if (!name || !testComment) { showToast('⚠ 生徒名と小テスト所見は必須です'); return; }
+
+  // テスト結果収集
+  const tests = [];
+  document.querySelectorAll('.test-item').forEach(item => {
+    const n = item.id.replace('test-','');
+    const tname = document.getElementById(`t${n}-name`)?.value.trim();
+    const score = document.getElementById(`t${n}-score`)?.value.trim();
+    if (tname) tests.push(`${tname}：${score || '未記入'}`);
+  });
+
+  const btn = document.getElementById('hs-gen-btn');
+  btn.disabled = true;
+  document.getElementById('hs-result').classList.add('visible');
+  document.getElementById('hs-loading').classList.add('show');
+  document.getElementById('hs-report').textContent = '';
+
+  const prompt = `あなたは塾講師です。以下の情報をもとに保護者向けの授業報告書を作成してください。
+
+【生徒名】${name}
+【授業日】${date}
+
+【小テスト結果】
+${tests.length > 0 ? tests.join('\n') : '（記録なし）'}
+
+【小テスト所見メモ】
+${testComment}
+
+【今週の学習時間】
+目標：${goalHours || '未記入'}h　実績：${actualHours || '未記入'}h
+
+【振り返りメモ】
+${reviewMemo || '（なし）'}
+
+【来週の目標・対策メモ】
+目標：${nextHours || '未記入'}h
+${nextPlan || '（なし）'}
+
+【出力形式の要件】
+- 読み手は保護者なので、丁寧な敬語で
+- 冒頭に「お世話になっております。本日の授業内容になります。」を入れる
+- 【小テスト】【今週の振り返りと次週の計画】の見出し形式で構成する
+- 小テスト結果は箇条書きで点数を記載し、その後に全体の所見を書く
+- 振り返りは学習時間の実績とともに、生徒の頑張りを認めながらも課題を率直に伝える
+- 来週の計画は具体的な対策を番号付きで記述する
+- コーチング的なトーン（生徒の努力を認める、前向きな言葉を添える）
+- 以下のスタイルを参考に：
+
+参考スタイル例：
+お世話になっております。本日の授業内容になります。
+
+【小テスト】
+現代語6~10　2/3
+英単語1601~1680　22/30
+数ⅡB 8章　❌
+
+今回は全体として７割程度の正答率でした。英単語をもう少し合わせたいのと、数学の基礎的な問題をミスなく解いて８割以上を目指していきたいところです。
+
+【今週の振り返りと次週の計画】
+（振り返りと計画の内容）
+
+報告書のみ出力してください（説明や前置きは不要）。`;
+
+  try {
+    const result = await callClaude(prompt);
+    document.getElementById('hs-report').textContent = result;
+  } catch(e) {
+    document.getElementById('hs-report').textContent = '通信エラーが発生しました。';
+  }
+
+  document.getElementById('hs-loading').classList.remove('show');
+  btn.disabled = false;
+  document.getElementById('hs-result').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function copyResult(mode) {
+  const text = document.getElementById(`${mode}-report`).textContent;
+  if (!text) return;
+  navigator.clipboard.writeText(text).then(() => showToast('✓ コピーしました'));
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2800);
+}
+</script>
+</body>
+</html>
